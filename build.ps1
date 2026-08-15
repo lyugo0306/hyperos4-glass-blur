@@ -3,7 +3,7 @@
     Build the OS4 Glass Mode Xposed module APK.
 .DESCRIPTION
     One-click build for os4-glass-blur v6.1. Requires:
-      - JDK (javac/jar in PATH or set $Javac / $Jar)
+      - JDK (javac/jar)
       - Android SDK Build Tools 37.0.0 (aapt2/d8/zipalign/apksigner)
       - libxposed-api-102.0.0.jar (Vector framework API)
       - android-37 platform android.jar
@@ -29,14 +29,26 @@ $Work     = Join-Path $Root 'build'
 $Classes  = Join-Path $Work 'classes'
 $Dex      = Join-Path $Work 'dex'
 $ResOut   = Join-Path $Work 'res-out'
+$SrcRoot  = Join-Path $App 'src'
 
-foreach ($d in @($Classes, $Dex, $ResOut, $Out)) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
+foreach ($d in @($Classes, $Dex, $ResOut, $Out)) {
+    New-Item -ItemType Directory -Force -Path $d | Out-Null
+}
 
-function Fail([string]$m) { Write-Host "FAILED: $m"; exit 1 }
+function Fail([string]$m) {
+    Write-Host "FAILED: $m"
+    exit 1
+}
 
-Write-Host '== javac =='
+# Compile every Java source under app/src. This keeps SettingsActivity and
+# future helper/hook classes from being accidentally omitted.
+$JavaSources = @(Get-ChildItem -Path $SrcRoot -Recurse -Filter '*.java' -File |
+    ForEach-Object { $_.FullName })
+if ($JavaSources.Count -eq 0) { Fail 'no Java sources found' }
+
+Write-Host "== javac ($($JavaSources.Count) source files) =="
 & (Join-Path $JdkBin 'javac.exe') -source 8 -target 8 -encoding UTF-8 `
-    -cp "$XposedApiJar;$PlatformJar" -d $Classes (Join-Path $App 'src\dev\codex\os4glassblur\MainHook.java') 2>$null
+    -cp "$XposedApiJar;$PlatformJar" -d $Classes $JavaSources 2>$null
 if ($LASTEXITCODE -ne 0) { Fail 'javac' }
 
 Write-Host '== jar (module classes) =='
@@ -49,7 +61,8 @@ Write-Host '== d8 =='
 if ($LASTEXITCODE -ne 0) { Fail 'd8' }
 
 Write-Host '== aapt2 compile =='
-& (Join-Path $BuildTools 'aapt2.exe') compile --dir (Join-Path $App 'res') -o (Join-Path $ResOut 'compiled-res.zip') 2>$null
+& (Join-Path $BuildTools 'aapt2.exe') compile --dir (Join-Path $App 'res') `
+    -o (Join-Path $ResOut 'compiled-res.zip') 2>$null
 if ($LASTEXITCODE -ne 0) { Fail 'aapt2 compile' }
 
 Write-Host '== aapt2 link =='
