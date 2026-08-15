@@ -29,7 +29,7 @@
 
 ## 安装
 
-1. 下载 [release/](release/) 中的 APK
+1. 下载release中的 APK
 2. 在 **Vector**（或 LSPosed）中启用模块 `dev.codex.os4glassblur`
 3. 勾选作用域：`com.android.systemui` 与 `miui.systemui.plugin`（模块内已固定）
 4. 重启 SystemUI（开发者选项 → 重启 SystemUI）或重启手机
