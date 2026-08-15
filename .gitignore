@@ -1,0 +1,19 @@
+# Android / Xposed module
+*.apk
+!release/*.apk
+build/
+classes/
+dex/
+out/
+module-classes.jar
+compiled-res.zip
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
