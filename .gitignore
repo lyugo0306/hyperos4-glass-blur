@@ -1,0 +1,22 @@
+# Build outputs
+build/
+*.apk
+
+# Local IDE / Android tooling
+.gradle/
+.idea/
+*.iml
+local.properties
+
+# Signing material - never commit private keys
+*.jks
+*.keystore
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# Keep published APKs that are intentionally stored in release/
+!release/*.apk
